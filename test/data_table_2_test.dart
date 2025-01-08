@@ -5,6 +5,8 @@
 // Copyright 2021 Maxim Saplin - changes and modifications to original Flutter implementation of DataTable
 
 @TestOn('!chrome')
+library;
+
 import 'dart:math' as math;
 
 import 'package:data_table_2/data_table_2.dart';
@@ -1969,7 +1971,7 @@ void main() {
     await tester.pumpWidget(buildTable(selected: true));
     expect(
       lastTableRowBoxDecoration().color,
-      themeData.colorScheme.primary.withOpacity(0.08),
+      themeData.colorScheme.primary.withValues(alpha: 0.08),
     );
   });
 
@@ -2025,9 +2027,9 @@ void main() {
           rows: <DataRow2>[
             DataRow2(
               selected: selected,
-              color: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.selected)) {
+              color: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
                     return selectedColor;
                   }
                   return defaultColor;
@@ -2080,9 +2082,9 @@ void main() {
               onSelectChanged: (bool? value) {},
             ),
             DataRow2(
-              color: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.disabled)) {
+              color: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.disabled)) {
                     return disabledColor;
                   }
                   return defaultColor;
@@ -2127,9 +2129,9 @@ void main() {
         ],
         rows: <DataRow>[
           DataRow2(
-            color: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-                if (states.contains(MaterialState.pressed)) {
+            color: WidgetStateProperty.resolveWith<Color>(
+              (Set<WidgetState> states) {
+                if (states.contains(WidgetState.pressed)) {
                   return pressedColor;
                 }
                 return Colors.transparent;
@@ -2300,5 +2302,60 @@ void main() {
     tableBorder = table.border;
     expect(tableBorder?.bottom.width, null);
     expect(tableBorder?.top.color, null);
+  });
+
+  testWidgets('DataColumn label can be centered', (WidgetTester tester) async {
+    const double horizontalMargin = 24.0;
+
+    Widget buildTable(
+        {MainAxisAlignment? headingRowAlignment, bool sortEnabled = false}) {
+      return MaterialApp(
+        home: Material(
+          child: DataTable2(
+            columns: <DataColumn>[
+              DataColumn(
+                headingRowAlignment: headingRowAlignment,
+                onSort:
+                    sortEnabled ? (int columnIndex, bool ascending) {} : null,
+                label: const Text('Header'),
+              ),
+            ],
+            rows: const <DataRow>[
+              DataRow(
+                cells: <DataCell>[
+                  DataCell(Text('Data')),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Test mainAxisAlignment without sort arrow.
+    await tester.pumpWidget(buildTable());
+
+    Offset headerTopLeft = tester.getTopLeft(find.text('Header'));
+    expect(headerTopLeft.dx, equals(horizontalMargin));
+
+    // Test mainAxisAlignment.center without sort arrow.
+    await tester
+        .pumpWidget(buildTable(headingRowAlignment: MainAxisAlignment.center));
+
+    Offset headerCenter = tester.getCenter(find.text('Header'));
+    expect(headerCenter.dx, equals(400));
+
+    // Test mainAxisAlignment with sort arrow.
+    await tester.pumpWidget(buildTable(sortEnabled: true));
+
+    headerTopLeft = tester.getTopLeft(find.text('Header'));
+    expect(headerTopLeft.dx, equals(horizontalMargin));
+
+    // Test mainAxisAlignment.center with sort arrow.
+    await tester.pumpWidget(buildTable(
+        headingRowAlignment: MainAxisAlignment.center, sortEnabled: true));
+
+    headerCenter = tester.getCenter(find.text('Header'));
+    expect(headerCenter.dx > 390, true);
   });
 }

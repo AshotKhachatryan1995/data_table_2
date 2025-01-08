@@ -157,67 +157,69 @@ const int defaultRowsPerPage = 10;
 class PaginatedDataTable2 extends StatefulWidget {
   /// Check out [PaginatedDataTable] for the API decription.
   /// Key differences are [minWidth] and [fit] properties.
-  PaginatedDataTable2(
-      {super.key,
-      this.header,
-      this.actions,
-      required this.columns,
-      this.sortColumnIndex,
-      this.sortAscending = true,
-      this.sortArrowAnimationDuration = const Duration(milliseconds: 150),
-      this.sortArrowIcon = Icons.arrow_upward,
-      this.sortArrowBuilder,
-      this.sortArrowAlwaysVisible = false,
-      this.onSelectAll,
-      this.dataTextStyle,
-      this.dataRowHeight = kMinInteractiveDimension,
-      this.datarowCheckboxTheme,
-      this.headingTextStyle,
-      this.headingRowHeight = 56.0,
-      this.headingRowColor,
-      this.headingCheckboxTheme,
-      this.horizontalMargin = 24.0,
-      this.columnSpacing = 56.0,
-      this.dividerThickness,
-      this.renderEmptyRowsInTheEnd = true,
-      this.fixedLeftColumns = 0,
-      this.fixedTopRows = 1,
-      this.fixedColumnsColor,
-      this.fixedCornerColor,
-      this.showCheckboxColumn = true,
-      this.isFilterFixed = false,
-      this.showHeadingCheckbox = true,
-      this.showFirstLastButtons = false,
-      this.initialFirstRowIndex = 0,
-      this.onPageChanged,
-      this.rowsPerPage = defaultRowsPerPage,
-      this.availableRowsPerPage = const <int>[
-        defaultRowsPerPage,
-        defaultRowsPerPage * 2,
-        defaultRowsPerPage * 5,
-        defaultRowsPerPage * 10
-      ],
-      this.onRowsPerPageChanged,
-      this.dragStartBehavior = DragStartBehavior.start,
-      required this.source,
-      this.checkboxHorizontalMargin,
-      this.checkboxAlignment = Alignment.center,
-      this.wrapInCard = true,
-      this.minWidth,
-      this.fit = FlexFit.loose,
-      this.hidePaginator = false,
-      this.controller,
-      this.scrollController,
-      this.horizontalScrollController,
-      this.horizontalScrollPhysics,
-      this.empty,
-      this.border,
-      this.autoRowsToHeight = false,
-      this.smRatio = 0.67,
-      this.lmRatio = 1.2,
-      this.headingRowDecoration,
-      this.filterDataRow})
-      : assert(actions == null || (header != null)),
+  PaginatedDataTable2({
+    super.key,
+    this.header,
+    this.actions,
+    required this.columns,
+    this.sortColumnIndex,
+    this.sortAscending = true,
+    this.sortArrowAnimationDuration = const Duration(milliseconds: 150),
+    this.sortArrowIcon = Icons.arrow_upward,
+    this.sortArrowBuilder,
+    this.sortArrowAlwaysVisible = false,
+    this.onSelectAll,
+    this.dataTextStyle,
+    this.dataRowHeight = kMinInteractiveDimension,
+    this.datarowCheckboxTheme,
+    this.headingTextStyle,
+    this.headingRowHeight = 56.0,
+    this.headingRowColor,
+    this.headingCheckboxTheme,
+    this.horizontalMargin = 24.0,
+    this.columnSpacing = 56.0,
+    this.dividerThickness,
+    this.renderEmptyRowsInTheEnd = true,
+    this.fixedLeftColumns = 0,
+    this.fixedTopRows = 1,
+    this.fixedColumnsColor,
+    this.fixedCornerColor,
+    this.showCheckboxColumn = true,
+    this.isFilterFixed = false,
+    this.showHeadingCheckbox = true,
+    this.showFirstLastButtons = false,
+    this.initialFirstRowIndex = 0,
+    this.onPageChanged,
+    this.rowsPerPage = defaultRowsPerPage,
+    this.availableRowsPerPage = const <int>[
+      defaultRowsPerPage,
+      defaultRowsPerPage * 2,
+      defaultRowsPerPage * 5,
+      defaultRowsPerPage * 10
+    ],
+    this.onRowsPerPageChanged,
+    this.dragStartBehavior = DragStartBehavior.start,
+    required this.source,
+    this.checkboxHorizontalMargin,
+    this.checkboxAlignment = Alignment.center,
+    this.wrapInCard = true,
+    this.minWidth,
+    this.fit = FlexFit.loose,
+    this.hidePaginator = false,
+    this.controller,
+    this.scrollController,
+    this.horizontalScrollController,
+    this.horizontalScrollPhysics,
+    this.empty,
+    this.border,
+    this.autoRowsToHeight = false,
+    this.smRatio = 0.67,
+    this.lmRatio = 1.2,
+    this.headingRowDecoration,
+    this.filterDataRow,
+    this.isVerticalScrollBarVisible,
+    this.isHorizontalScrollBarVisible,
+  })  : assert(actions == null || (header != null)),
         assert(columns.isNotEmpty),
         assert(sortColumnIndex == null ||
             (sortColumnIndex >= 0 && sortColumnIndex < columns.length)),
@@ -324,7 +326,7 @@ class PaginatedDataTable2 extends StatefulWidget {
   /// The background color for the heading row.
   ///
   /// The effective background color can be made to depend on the
-  /// [MaterialState] state, i.e. if the row is pressed, hovered, focused when
+  /// [WidgetState] state, i.e. if the row is pressed, hovered, focused when
   /// sorted. The color is painted as an overlay to the row. To make sure that
   /// the row's [InkWell] is visible (when pressed, hovered and focused), it is
   /// recommended to use a translucent color.
@@ -349,7 +351,7 @@ class PaginatedDataTable2 extends StatefulWidget {
   ///    match a component's state:
   ///    <https://material.io/design/interaction/states.html#anatomy>.
   /// {@endtemplate}
-  final MaterialStateProperty<Color?>? headingRowColor;
+  final WidgetStateProperty<Color?>? headingRowColor;
 
   /// If set this field will override the current BoxDecoration.
   /// It takes precedence over headerRowColor when both are provided.
@@ -521,6 +523,12 @@ class PaginatedDataTable2 extends StatefulWidget {
   final ScrollPhysics? horizontalScrollPhysics;
 
   final DataRow? filterDataRow;
+
+  /// Determines whether the vertical scroll bar is visible, for iOS takes value from scrollbarTheme when null
+  final bool? isVerticalScrollBarVisible;
+
+  /// Determines whether the horizontal scroll bar is visible, for iOS takes value from scrollbarTheme when null
+  final bool? isHorizontalScrollBarVisible;
 
   @override
   PaginatedDataTable2State createState() => PaginatedDataTable2State();
@@ -712,7 +720,7 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
 
     if (_selectedRowCount == 0 && widget.header != null) {
       headerWidgets.add(Expanded(child: widget.header!));
-      if (widget.header is ButtonBar) {
+      if (widget.header is OverflowBar) {
         // We adjust the padding when a button bar is present, because the
         // ButtonBar introduces 2 pixels of outside padding, plus 2 pixels
         // around each button on each side, and the button itself will have 8
@@ -817,6 +825,8 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
           border: widget.border,
           smRatio: widget.smRatio,
           lmRatio: widget.lmRatio,
+          isHorizontalScrollBarVisible: widget.isHorizontalScrollBarVisible,
+          isVerticalScrollBarVisible: widget.isVerticalScrollBarVisible,
         ),
       ),
     );

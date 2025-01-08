@@ -30,6 +30,7 @@ class DataColumn2 extends DataColumn {
       super.tooltip,
       super.numeric = false,
       super.onSort,
+      super.headingRowAlignment,
       this.size = ColumnSize.M,
       this.fixedWidth});
 
@@ -87,7 +88,7 @@ class DataRow2 extends DataRow {
     LocalKey? key,
     bool? selected,
     ValueChanged<bool?>? onSelectChanged,
-    MaterialStateProperty<Color?>? color,
+    WidgetStateProperty<Color?>? color,
     Decoration? decoration,
     List<DataCell>? cells,
     double? specificRowHeight,
@@ -167,6 +168,7 @@ class DataTable2 extends DataTable {
     this.bottomMargin,
     super.columnSpacing,
     this.isFilterFixed = false,
+    this.showHeadingCheckBox = true,
     super.showCheckboxColumn = true,
     super.showBottomBorder = false,
     super.dividerThickness,
@@ -256,6 +258,11 @@ class DataTable2 extends DataTable {
   /// Alignment of the checkbox if it is displayed
   /// Defaults to the [Alignment.center]
   final Alignment checkboxAlignment;
+
+  /// Whether to display heading checkbox or not if the checkbox column is present. Defaults to true.
+  /// Also check [DataTable.showCheckboxColumn] for details
+  /// on how to control the checkbox column visibility
+  final bool showHeadingCheckBox;
 
   /// Overrides theme of the checkbox that is displayed in the checkbox column
   /// in each data row (should checkboxes be enabled)
@@ -370,7 +377,7 @@ class DataTable2 extends DataTable {
       required bool? checked,
       required VoidCallback? onRowTap,
       required ValueChanged<bool?>? onCheckboxChanged,
-      required MaterialStateProperty<Color?>? overlayColor,
+      required WidgetStateProperty<Color?>? overlayColor,
       required CheckboxThemeData? checkboxTheme,
       required bool tristate,
       required double? rowHeight}) {
@@ -428,13 +435,15 @@ class DataTable2 extends DataTable {
       required bool sorted,
       required bool ascending,
       required double effectiveHeadingRowHeight,
-      required MaterialStateProperty<Color?>? overlayColor}) {
+      required WidgetStateProperty<Color?>? overlayColor,
+      required MainAxisAlignment headingRowAlignment}) {
     final ThemeData themeData = Theme.of(context);
 
     var customArrows =
         sortArrowBuilder != null ? sortArrowBuilder!(ascending, sorted) : null;
     label = Row(
       textDirection: numeric ? TextDirection.rtl : null,
+      mainAxisAlignment: headingRowAlignment,
       children: <Widget>[
         Flexible(child: label),
         if (onSort != null) ...<Widget>[
@@ -500,7 +509,7 @@ class DataTable2 extends DataTable {
       required GestureTapCallback? onRowSecondaryTap,
       required GestureTapDownCallback? onRowSecondaryTapDown,
       required VoidCallback? onSelectChanged,
-      required MaterialStateProperty<Color?>? overlayColor}) {
+      required WidgetStateProperty<Color?>? overlayColor}) {
     final ThemeData themeData = Theme.of(context);
     final DataTableThemeData dataTableTheme = DataTableTheme.of(context);
 
@@ -531,7 +540,7 @@ class DataTable2 extends DataTable {
       child: DefaultTextStyle(
         style: effectiveDataTextStyle.copyWith(
           color: placeholder
-              ? effectiveDataTextStyle.color!.withOpacity(0.6)
+              ? effectiveDataTextStyle.color!.withValues(alpha: 0.6)
               : null,
         ),
         child: DropdownButtonHideUnderline(child: label),
@@ -594,14 +603,15 @@ class DataTable2 extends DataTable {
     assert(debugCheckHasMaterial(context));
 
     final theme = Theme.of(context);
+    final DataTableThemeData dataTableTheme = DataTableTheme.of(context);
     final effectiveHeadingRowColor =
         headingRowColor ?? theme.dataTableTheme.headingRowColor;
     final effectiveDataRowColor =
         dataRowColor ?? theme.dataTableTheme.dataRowColor;
-    final defaultRowColor = MaterialStateProperty.resolveWith(
-      (Set<MaterialState> states) {
-        if (states.contains(MaterialState.selected)) {
-          return theme.colorScheme.primary.withOpacity(0.08);
+    final defaultRowColor = WidgetStateProperty.resolveWith(
+      (Set<WidgetState> states) {
+        if (states.contains(WidgetState.selected)) {
+          return theme.colorScheme.primary.withValues(alpha: 0.08);
         }
         return null;
       },
@@ -668,13 +678,13 @@ class DataTable2 extends DataTable {
                         context,
                         theme,
                         fixedColumnsColor != null
-                            ? MaterialStatePropertyAll(fixedColumnsColor)
+                            ? WidgetStatePropertyAll(fixedColumnsColor)
                             : effectiveHeadingRowColor,
                         actualFixedColumns),
                     ..._buildTableRows(
                         anyRowSelectable,
                         fixedColumnsColor != null
-                            ? MaterialStatePropertyAll(fixedColumnsColor)
+                            ? WidgetStatePropertyAll(fixedColumnsColor)
                             : effectiveDataRowColor,
                         context,
                         theme,
@@ -688,7 +698,7 @@ class DataTable2 extends DataTable {
                 : _buildTableRows(
                     anyRowSelectable,
                     fixedColumnsColor != null
-                        ? MaterialStatePropertyAll(fixedColumnsColor)
+                        ? WidgetStatePropertyAll(fixedColumnsColor)
                         : effectiveDataRowColor,
                     context,
                     theme,
@@ -740,7 +750,7 @@ class DataTable2 extends DataTable {
                         context,
                         theme,
                         fixedCornerColor != null
-                            ? MaterialStatePropertyAll(fixedCornerColor)
+                            ? WidgetStatePropertyAll(fixedCornerColor)
                             : effectiveHeadingRowColor,
                         actualFixedColumns),
                     if (filterDataRow != null && isFilterFixed)
@@ -757,13 +767,13 @@ class DataTable2 extends DataTable {
                         context,
                         theme,
                         fixedCornerColor != null
-                            ? MaterialStatePropertyAll(fixedCornerColor)
+                            ? WidgetStatePropertyAll(fixedCornerColor)
                             : effectiveHeadingRowColor,
                         actualFixedColumns),
                     ..._buildTableRows(
                         anyRowSelectable,
                         fixedCornerColor != null
-                            ? MaterialStatePropertyAll(fixedCornerColor)
+                            ? WidgetStatePropertyAll(fixedCornerColor)
                             : effectiveDataRowColor,
                         context,
                         theme,
@@ -847,19 +857,23 @@ class DataTable2 extends DataTable {
                   FixedColumnWidth(widths[dataColumnIndex]);
 
               var h = _buildHeadingCell(
-                  context: context,
-                  padding: padding,
-                  effectiveHeadingRowHeight: effectiveHeadingRowHeight,
-                  label: column.label,
-                  tooltip: column.tooltip,
-                  numeric: column.numeric,
-                  onSort: column.onSort != null
-                      ? () => column.onSort!(dataColumnIndex,
-                          sortColumnIndex != dataColumnIndex || !sortAscending)
-                      : null,
-                  sorted: dataColumnIndex == sortColumnIndex,
-                  ascending: sortAscending,
-                  overlayColor: effectiveHeadingRowColor);
+                context: context,
+                padding: padding,
+                effectiveHeadingRowHeight: effectiveHeadingRowHeight,
+                label: column.label,
+                tooltip: column.tooltip,
+                numeric: column.numeric,
+                onSort: column.onSort != null
+                    ? () => column.onSort!(dataColumnIndex,
+                        sortColumnIndex != dataColumnIndex || !sortAscending)
+                    : null,
+                sorted: dataColumnIndex == sortColumnIndex,
+                ascending: sortAscending,
+                overlayColor: effectiveHeadingRowColor,
+                headingRowAlignment: column.headingRowAlignment ??
+                    dataTableTheme.headingRowAlignment ??
+                    MainAxisAlignment.start,
+              );
 
               headingRow.children[displayColumnIndex] =
                   h; // heading row alone is used to display table header should there be no data rows
@@ -1074,11 +1088,10 @@ class DataTable2 extends DataTable {
                   thumbVisibility: isHorizontalScrollBarVisible ??
                       (isiOS
                           ? scrollBarTheme.thumbVisibility
-                              ?.resolve({MaterialState.hovered})
+                              ?.resolve({WidgetState.hovered})
                           : null),
                   thickness: (isiOS
-                      ? scrollBarTheme.thickness
-                          ?.resolve({MaterialState.hovered})
+                      ? scrollBarTheme.thickness?.resolve({WidgetState.hovered})
                       : null),
                   controller: coreHorizontalController,
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -1217,7 +1230,7 @@ class DataTable2 extends DataTable {
       List<TableRow>? fixedColumnRows,
       List<DataRow> rows,
       int actualFixedRows,
-      MaterialStateProperty<Color?>? effectiveDataRowColor) {
+      WidgetStateProperty<Color?>? effectiveDataRowColor) {
     double checkBoxWidth = 0;
 
     if (displayCheckboxColumn) {
@@ -1387,11 +1400,11 @@ class DataTable2 extends DataTable {
 
   List<TableRow> _buildTableRows(
       bool anyRowSelectable,
-      MaterialStateProperty<Color?>? effectiveDataRowColor,
+      WidgetStateProperty<Color?>? effectiveDataRowColor,
       BuildContext context,
       ThemeData theme,
       int numberOfCols,
-      MaterialStateProperty<Color?> defaultRowColor,
+      WidgetStateProperty<Color?> defaultRowColor,
       TableRow? headingRow,
       [int skipRows = 0,
       int takeRows = 0,
@@ -1408,9 +1421,9 @@ class DataTable2 extends DataTable {
           final bool isSelected = rows[rowStartIndex + actualIndex].selected;
           final bool isDisabled = anyRowSelectable &&
               rows[rowStartIndex + actualIndex].onSelectChanged == null;
-          final Set<MaterialState> states = <MaterialState>{
-            if (isSelected) MaterialState.selected,
-            if (isDisabled) MaterialState.disabled,
+          final Set<WidgetState> states = <WidgetState>{
+            if (isSelected) WidgetState.selected,
+            if (isDisabled) WidgetState.disabled,
           };
           final Color? resolvedDataRowColor = (forceEffectiveDataRowColor
                   ? effectiveDataRowColor
@@ -1456,11 +1469,8 @@ class DataTable2 extends DataTable {
     return tableRows;
   }
 
-  TableRow _buildHeadingRow(
-      BuildContext context,
-      ThemeData theme,
-      MaterialStateProperty<Color?>? effectiveHeadingRowColor,
-      int numberOfCols) {
+  TableRow _buildHeadingRow(BuildContext context, ThemeData theme,
+      WidgetStateProperty<Color?>? effectiveHeadingRowColor, int numberOfCols) {
     var headingRow = TableRow(
       key: _headingRowKey,
       decoration: BoxDecoration(
@@ -1477,7 +1487,7 @@ class DataTable2 extends DataTable {
                     _dividerThickness,
               ))
             : null,
-        color: effectiveHeadingRowColor?.resolve(<MaterialState>{}),
+        color: effectiveHeadingRowColor?.resolve(<WidgetState>{}),
       ).copyWith(
         color: headingRowDecoration?.color,
         image: headingRowDecoration?.image,

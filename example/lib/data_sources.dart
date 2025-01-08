@@ -148,9 +148,9 @@ class DessertDataSource extends DataTableSource {
       index: index,
       selected: dessert.selected,
       color: color != null
-          ? MaterialStateProperty.all(color)
+          ? WidgetStateProperty.all(color)
           : (hasZebraStripes && index.isEven
-              ? MaterialStateProperty.all(Theme.of(context).highlightColor)
+              ? WidgetStateProperty.all(Theme.of(context).highlightColor)
               : null),
       onSelectChanged: (value) {
         if (dessert.selected != value) {
@@ -212,7 +212,7 @@ class DessertDataSource extends DataTableSource {
 }
 
 /// Async datasource for AsynPaginatedDataTabke2 example. Based on AsyncDataTableSource which
-/// is an extension to FLutter's DataTableSource and aimed at solving
+/// is an extension to Flutter's DataTableSource and aimed at solving
 /// saync data fetching scenarious by paginated table (such as using Web API)
 class DessertDataSourceAsync extends AsyncDataTableSource {
   DessertDataSourceAsync() {
