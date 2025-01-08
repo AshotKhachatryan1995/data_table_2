@@ -409,6 +409,7 @@ class DataTable2 extends DataTable {
             data: ThemeData(checkboxTheme: checkboxTheme),
             child: Checkbox(
               value: checked,
+              activeColor: Colors.black,
               onChanged: onCheckboxChanged,
               tristate: tristate,
             )),
