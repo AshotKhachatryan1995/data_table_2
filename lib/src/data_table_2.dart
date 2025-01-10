@@ -190,8 +190,8 @@ class DataTable2 extends DataTable {
     this.sortArrowIcon = Icons.arrow_upward,
     this.sortArrowBuilder,
     this.headingRowDecoration,
-    this.showHeadingCheckbox = true,
     required super.rows,
+    this.checkboxRightMargin = 0,
     this.filterDataRow,
   })  : assert(fixedLeftColumns >= 0),
         assert(fixedTopRows >= 0);
@@ -263,6 +263,8 @@ class DataTable2 extends DataTable {
   /// Also check [DataTable.showCheckboxColumn] for details
   /// on how to control the checkbox column visibility
   final bool showHeadingCheckBox;
+
+  final double checkboxRightMargin;
 
   /// Overrides theme of the checkbox that is displayed in the checkbox column
   /// in each data row (should checkboxes be enabled)
@@ -348,8 +350,6 @@ class DataTable2 extends DataTable {
   /// Note: to change background color of fixed data rows use [DataTable2.headingRowColor]
   final Color? fixedColumnsColor;
 
-  final bool showHeadingCheckbox;
-
   /// Backgound color of the top left corner which is fixed whenere both [fixedTopRows]
   /// and [fixedLeftColumns] are greater than 0
   /// Note: unlike data rows which can change their colors depending on material state (e.g. selected, hovered)
@@ -406,13 +406,14 @@ class DataTable2 extends DataTable {
       container: true,
       child: wrapInContainer(
         Theme(
-            data: ThemeData(checkboxTheme: checkboxTheme),
-            child: Checkbox(
-              value: checked,
-              activeColor: Colors.black,
-              onChanged: onCheckboxChanged,
-              tristate: tristate,
-            )),
+          data: ThemeData(checkboxTheme: checkboxTheme),
+          child: Checkbox(
+            value: checked,
+            activeColor: Colors.black,
+            onChanged: onCheckboxChanged,
+            tristate: tristate,
+          ),
+        ),
       ),
     );
     if (onRowTap != null) {
@@ -788,8 +789,10 @@ class DataTable2 extends DataTable {
             : null;
 
     double checkBoxWidth = _addCheckBoxes(
+        showHeadingCheckBox,
         displayCheckboxColumn,
         effectiveHorizontalMargin,
+        checkboxRightMargin,
         tableColumnWidths,
         headingRow,
         effectiveHeadingRowHeight,
@@ -827,6 +830,8 @@ class DataTable2 extends DataTable {
             final widths = _calculateDataColumnSizes(
                 constraints, checkBoxWidth, effectiveHorizontalMargin);
 
+            debugPrint(
+                "DBG PRINT: _calculateDataColumnSizes: ${widths}, right margins:$checkboxRightMargin");
             // File empty cells in created rows with actual widgets
             for (int dataColumnIndex = 0;
                 dataColumnIndex < columns.length;
@@ -1217,8 +1222,10 @@ class DataTable2 extends DataTable {
   }
 
   double _addCheckBoxes(
+      bool showHeadingCheckbox,
       bool displayCheckboxColumn,
       double effectiveHorizontalMargin,
+      double checkboxRightMargin,
       List<TableColumnWidth> tableColumns,
       TableRow headingRow,
       double headingHeight,
@@ -1237,9 +1244,10 @@ class DataTable2 extends DataTable {
     if (displayCheckboxColumn) {
       checkBoxWidth = effectiveHorizontalMargin +
           Checkbox.width +
+          checkboxRightMargin +
           effectiveHorizontalMargin / 2.0;
       tableColumns[0] = FixedColumnWidth(checkBoxWidth);
-
+      debugPrint("DBG PRINT: displayCheckboxColumn: $checkboxRightMargin");
       // Create heading twice, in the heading row used as back-up for the case of no data and any of the xxx_rows table
       headingRow.children[0] = showHeadingCheckbox
           ? _buildCheckbox(
@@ -1311,6 +1319,7 @@ class DataTable2 extends DataTable {
   List<double> _calculateDataColumnSizes(BoxConstraints constraints,
       double checkBoxWidth, double effectiveHorizontalMargin) {
     var totalColAvailableWidth = constraints.maxWidth;
+
     if (minWidth != null && totalColAvailableWidth < minWidth!) {
       totalColAvailableWidth = minWidth!;
     }
