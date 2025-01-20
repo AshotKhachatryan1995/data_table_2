@@ -1372,7 +1372,7 @@ class DataTable2 extends DataTable {
       if (!(column is DataColumn2 && column.fixedWidth != null)) {
         totalColCalculatedWidth += w;
       }
-      return w;
+      return w < 0 ? 0 : w;
     });
 
     // scale columns to fit the total lemnght into available width
