@@ -569,7 +569,6 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
         widget.initialFirstRowIndex ??
         0;
     widget.source.addListener(_handleDataSourceChanged);
-    _effectiveRowsPerPage = widget.rowsPerPage;
     widget.controller?._attach(this);
     _handleDataSourceChanged();
   }
@@ -597,6 +596,10 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
   void _handleDataSourceChanged() {
     setState(() {
       _rowCount = widget.source.rowCount;
+
+      _effectiveRowsPerPage =
+          _rowCount < widget.rowsPerPage ? _rowCount : widget.rowsPerPage;
+
       _rowCountApproximate = widget.source.isRowCountApproximate;
       _selectedRowCount = widget.source.selectedRowCount;
       _rows.clear();
