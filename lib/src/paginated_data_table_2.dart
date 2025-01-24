@@ -609,6 +609,10 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
   // Aligns row index to page size returning the first index of a page
   // that contains given row
   int _alignRowIndex(int rowIndex, int rowsPerPage) {
+    if (rowsPerPage == 0) {
+      return 0;
+    }
+
     return ((rowIndex + 1) ~/ rowsPerPage) * rowsPerPage;
   }
 
