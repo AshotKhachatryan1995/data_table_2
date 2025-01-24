@@ -1090,60 +1090,68 @@ class DataTable2 extends DataTable {
               var isiOS = Theme.of(context).platform == TargetPlatform.iOS;
 
               // For iOS/Cupertino scrollbar
-              fixedRowsAndCoreCol = Scrollbar(
-                  thumbVisibility: isHorizontalScrollBarVisible ??
-                      (isiOS
-                          ? scrollBarTheme.thumbVisibility
+              fixedRowsAndCoreCol = MediaQuery.removePadding(
+                  context: context,
+                  removeBottom: true,
+                  child: Scrollbar(
+                      thumbVisibility: isHorizontalScrollBarVisible ??
+                          (isiOS
+                              ? scrollBarTheme.thumbVisibility
+                                  ?.resolve({WidgetState.hovered})
+                              : null),
+                      thickness: (isiOS
+                          ? scrollBarTheme.thickness
                               ?.resolve({WidgetState.hovered})
                           : null),
-                  thickness: (isiOS
-                      ? scrollBarTheme.thickness?.resolve({WidgetState.hovered})
-                      : null),
-                  controller: coreHorizontalController,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    ScrollConfiguration(
-                      behavior: ScrollConfiguration.of(context)
-                          .copyWith(scrollbars: false),
-                      child: SingleChildScrollView(
-                          controller: fixedRowsHorizontalController,
-                          scrollDirection: Axis.horizontal,
-                          physics: horizontalScrollPhysics,
-                          child: (fixedRowsTabel != null)
-                              ? fixedRowsTabel
-                              // WOrkaround for a bug when there's no horizontal scrollbar should there be no this SingleChildScrollView. I.e. originally this part was ommited and not scrollable was added to the column if not fixed top row was visible
-                              : SizedBox(
-                                  height: 0,
-                                  width: widths.fold<double>(
-                                      0,
-                                      (previousValue, value) =>
-                                          previousValue + value),
-                                )),
-                    ),
-                    Flexible(
-                      fit: FlexFit.tight,
-                      child: Scrollbar(
-                          thumbVisibility: isVerticalScrollBarVisible ??
-                              (isiOS
-                                  ? scrollBarTheme.thumbVisibility
-                                      ?.resolve({MaterialState.hovered})
-                                  : null),
-                          thickness: (isiOS
-                              ? scrollBarTheme.thickness
-                                  ?.resolve({MaterialState.hovered})
-                              : null),
-                          controller: coreVerticalController,
-                          child: SizedBox(
-                            child: SingleChildScrollView(
-                                controller: coreVerticalController,
-                                scrollDirection: Axis.vertical,
-                                child: SingleChildScrollView(
-                                    controller: coreHorizontalController,
-                                    scrollDirection: Axis.horizontal,
-                                    physics: horizontalScrollPhysics,
-                                    child: addBottomMargin(coreTable))),
-                          )),
-                    )
-                  ]));
+                      controller: coreHorizontalController,
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
+                          child: SingleChildScrollView(
+                              controller: fixedRowsHorizontalController,
+                              scrollDirection: Axis.horizontal,
+                              physics: horizontalScrollPhysics,
+                              child: (fixedRowsTabel != null)
+                                  ? fixedRowsTabel
+                                  // WOrkaround for a bug when there's no horizontal scrollbar should there be no this SingleChildScrollView. I.e. originally this part was ommited and not scrollable was added to the column if not fixed top row was visible
+                                  : SizedBox(
+                                      height: 0,
+                                      width: widths.fold<double>(
+                                          0,
+                                          (previousValue, value) =>
+                                              previousValue + value),
+                                    )),
+                        ),
+                        Flexible(
+                            fit: FlexFit.tight,
+                            child: MediaQuery.removePadding(
+                              context: context,
+                              removeBottom: true,
+                              child: Scrollbar(
+                                  thumbVisibility: isVerticalScrollBarVisible ??
+                                      (isiOS
+                                          ? scrollBarTheme.thumbVisibility
+                                              ?.resolve({MaterialState.hovered})
+                                          : null),
+                                  thickness: (isiOS
+                                      ? scrollBarTheme.thickness
+                                          ?.resolve({MaterialState.hovered})
+                                      : null),
+                                  controller: coreVerticalController,
+                                  child: SizedBox(
+                                    child: SingleChildScrollView(
+                                        controller: coreVerticalController,
+                                        scrollDirection: Axis.vertical,
+                                        child: SingleChildScrollView(
+                                            controller:
+                                                coreHorizontalController,
+                                            scrollDirection: Axis.horizontal,
+                                            physics: horizontalScrollPhysics,
+                                            child: addBottomMargin(coreTable))),
+                                  )),
+                            ))
+                      ])));
 
               fixedColumnAndCornerCol = fixedTopLeftCornerTable == null &&
                       fixedColumnsTable == null
