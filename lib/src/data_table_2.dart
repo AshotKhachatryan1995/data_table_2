@@ -830,8 +830,6 @@ class DataTable2 extends DataTable {
             final widths = _calculateDataColumnSizes(
                 constraints, checkBoxWidth, effectiveHorizontalMargin);
 
-            debugPrint(
-                "DBG PRINT: _calculateDataColumnSizes: ${widths}, right margins:$checkboxRightMargin");
             // File empty cells in created rows with actual widgets
             for (int dataColumnIndex = 0;
                 dataColumnIndex < columns.length;
