@@ -1132,9 +1132,7 @@ class DataTable2 extends DataTable {
                                   ?.resolve({MaterialState.hovered})
                               : null),
                           controller: coreVerticalController,
-                          child: Container(
-                            margin: EdgeInsets.only(
-                                bottom: headingRowHeight ?? 0.0),
+                          child: SizedBox(
                             child: SingleChildScrollView(
                                 controller: coreVerticalController,
                                 scrollDirection: Axis.vertical,
