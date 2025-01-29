@@ -613,6 +613,12 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
       return 0;
     }
 
+    /// There was issue when rowsPer page is equal to 1,
+    /// this if statement fix that bug
+    if (rowsPerPage == 1) {
+      return rowIndex; // Fix for rowsPerPage == 1 case
+    }
+
     return ((rowIndex + 1) ~/ rowsPerPage) * rowsPerPage;
   }
 
