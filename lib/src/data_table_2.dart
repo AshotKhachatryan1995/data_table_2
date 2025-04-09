@@ -612,9 +612,6 @@ class DataTable2 extends DataTable {
         dataRowColor ?? theme.dataTableTheme.dataRowColor;
     final defaultRowColor = WidgetStateProperty.resolveWith(
       (Set<WidgetState> states) {
-        if (states.contains(WidgetState.selected)) {
-          return theme.colorScheme.primary.withValues(alpha: 0.08);
-        }
         return null;
       },
     );
@@ -1251,7 +1248,6 @@ class DataTable2 extends DataTable {
           checkboxRightMargin +
           effectiveHorizontalMargin / 2.0;
       tableColumns[0] = FixedColumnWidth(checkBoxWidth);
-      debugPrint("DBG PRINT: displayCheckboxColumn: $checkboxRightMargin");
       // Create heading twice, in the heading row used as back-up for the case of no data and any of the xxx_rows table
       headingRow.children[0] = showHeadingCheckbox
           ? _buildCheckbox(
